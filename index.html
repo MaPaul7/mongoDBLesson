@@ -1,0 +1,163 @@
+<!DOCTYPE HTML>
+<body>
+<div id = "FindRotations">
+</div>
+<div id = "RotationArr">
+</div>
+<div id = "Rotations">
+</div>
+</body>
+<script>
+
+let rotations = document.getElementById("Rotations")
+
+const baseURL = "http://localhost:3000/";
+
+let addArray = [];
+
+async function switchFunction(){
+//e.preventDefault();
+  document.getElementById("FindRotations").innerHTML = "";
+  document.getElementById("FindRotations").innerHTML +=
+  'Enter new rotation here:<br> <input id="numb" placeholder="New Rotation"> <br> <button id="addBtn">Add</button><button id="clrBtn">Clear</button> <button id="subBtn">Submit</button>'
+  document.getElementById("FindRotations").innerHTML += '<br><br><button id=switchBtn2>Find Rotations</button>'
+  const aButton = document.getElementById("addBtn");
+  const sButton = document.getElementById("subBtn");
+  const cButton = document.getElementById("clrBtn");
+  const swButton2 = document.getElementById("switchBtn2");
+  aButton.addEventListener('click', addtoArray);
+  sButton.addEventListener('click', addFunction);
+  swButton2.addEventListener('click', switchFunction2);
+  cButton.addEventListener('click', clearArray);
+  document.getElementById("Rotations").innerHTML = "";
+  if(addArray.length > 0){
+    document.getElementById("RotationArr").innerHTML = '[' + addArray.join(', ') + ']'
+  }
+  localStorage.setItem("page", "addRotation");
+}
+async function switchFunction2(){
+  //e.preventDefault();
+  document.getElementById("FindRotations").innerHTML = "";
+  document.getElementById("FindRotations").innerHTML +=
+  'Enter rotation number(e.g., 0077):<br> <input id="numb" placeholder="Rotation Number"> <br><button id="postBtn">Search</button>'
+  document.getElementById("FindRotations").innerHTML += '<br><br><button id=switchBtn>Add Rotations</button>'
+  const pButton = document.getElementById("postBtn");
+  const swButton = document.getElementById("switchBtn");
+  pButton.addEventListener('click', findFunction);
+  swButton.addEventListener('click', switchFunction);
+  document.getElementById("Rotations").innerHTML = "";
+  document.getElementById("RotationArr").innerHTML = "";
+  localStorage.setItem("page", "findRotation");
+}
+
+
+if(localStorage.getItem("page") == null){
+  switchFunction();
+}else if(localStorage.getItem("page") == "findRotation"){
+  switchFunction2();
+}
+else{
+  switchFunction();
+}
+
+async function getFunction(e){
+  e.preventDefault();
+  const res = await fetch(baseURL + 'info/HI?key=hello',
+  {
+    method: 'GET'
+  })
+  console.log(res);
+  const data = await res.json();
+  document.getElementById("Rotations").innerHTML = "Success!"
+  //numb.value = data.info;
+}
+async function addtoArray(e){
+  e.preventDefault();
+  addArray.push('"'+ numb.value + '"');
+  numb.value = "";
+  document.getElementById("RotationArr").innerHTML = '[' + addArray.join(', ') + ']'
+}
+async function clearArray(e){
+  e.preventDefault();
+  document.getElementById("RotationArr").innerHTML = "";
+  addArray = [];
+
+}
+async function addFunction(e){
+  e.preventDefault();
+  if(addArray.length != 0){
+    const res = await fetch(baseURL + 'add',
+    {
+      method: 'POST',
+      headers: {
+        "Content-Type": 'application/json'
+      },
+      body: JSON.stringify({
+        package: '[' + addArray.join(', ') + ']'
+      })
+
+    });
+  }else{
+    const res = await fetch(baseURL + 'add',
+    {
+      method: 'POST',
+      headers: {
+        "Content-Type": 'application/json'
+      },
+      body: JSON.stringify({
+        package: numb.value
+      })
+    })
+  }
+
+  document.getElementById("RotationArr").innerHTML = "";
+  numb.value = ""
+  numb.placeholder = "New Rotation";
+  addArray = [];
+  const res2 = await fetch(baseURL + 'add',
+  {
+    method: 'GET'
+  });
+    /*if(data.info == false){
+      alert("Rotation added to database");
+    }
+    else{
+      alert("Rotation already in database")
+    }*/
+}
+
+//.post -->
+//.get -->
+//.post -->
+//.get -->
+
+
+async function findFunction(e){
+  e.preventDefault();
+  const res = await fetch(baseURL + 'find',
+  {
+    method: 'POST',
+    headers: {
+      "Content-Type": 'application/json'
+    },
+    body: JSON.stringify({
+      package: numb.value
+    })
+  });
+  const res2 = await fetch(baseURL + 'find',
+  {
+    method: 'GET'
+  });
+  const data = await res2.json();
+  document.getElementById("Rotations").innerHTML = "";
+  document.getElementById("Rotations").innerHTML += "<br>"
+  for(let i = 0; i < data.info.length; i++){
+    document.getElementById("Rotations").innerHTML += data.info[i];
+    document.getElementById("Rotations").innerHTML += "<br>"
+  }
+
+  return;
+}
+
+</script>
+</html>
